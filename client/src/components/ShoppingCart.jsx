@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const ShoppingCart = () => {
@@ -70,7 +70,7 @@ const ShoppingCart = () => {
                 />
                 <div className="flex-1 flex flex-col gap-1">
                   <span className="text-xl font-bold text-gray-800 playfair">{item.foodName}</span>
-                  <span className="text-base font-semibold text-pink-700">LKR {item.price}</span>
+                  <span className="text-base font-semibold text-pink-700">₹ {item.price}</span>
                   {item.tasteType && (
                     <span className="text-xs text-gray-600 mt-1">Taste: <span className="font-semibold text-gray-800">{item.tasteType}</span></span>
                   )}
@@ -116,7 +116,7 @@ const ShoppingCart = () => {
             ))}
             <div className="flex justify-between items-center pt-8 border-t border-gray-200 mt-4">
               <span className="text-xl font-bold text-gray-800">Total</span>
-              <span className="text-2xl font-extrabold text-pink-700">LKR {totalPrice.toFixed(2)}</span>
+              <span className="text-2xl font-extrabold text-pink-700">₹ {totalPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-end mt-6">
               <button 

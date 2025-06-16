@@ -20,5 +20,6 @@ This project is a restaurant management and ordering system.
 Contributions are welcome! Please open an issue or submit a pull request.
 
 ## Contributors
-This project is maintained by its contributors. View the full list on GitHub after pushing your changes.
+- @dac89 (Project Owner)
+- [Add other contributors here as needed]
 

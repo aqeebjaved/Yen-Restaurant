@@ -160,8 +160,9 @@ function ItemCard({ item, addToCart, handleBuyNow, currentUser }) {
   const [vegToppings, setVegToppings] = useState([]);
   const [nonVegToppings, setNonVegToppings] = useState([]);
 
-  const vegOptions = ["Paneer", "Onion", "Tomato", "Capsicum", "Corn"];
-  const nonVegOptions = ["Chicken", "Egg", "Fish", "Prawn"];
+  // Use toppings from the item object (added by employee)
+  const vegOptions = item['Veg Toppings'] || [];
+  const nonVegOptions = item['Non Veg Toppings'] || [];
 
   const handleToppingChange = (type, topping) => {
     if (type === 'veg') {
@@ -190,7 +191,7 @@ function ItemCard({ item, addToCart, handleBuyNow, currentUser }) {
       <div className="flex flex-col flex-1 p-5 gap-2">
         <div className="flex items-center justify-between mb-1">
           <span className="font-bold text-lg text-gray-900 truncate playfair" title={item.foodName}>{item.foodName}</span>
-          <span className="font-bold text-pink-600 text-base">LKR {item.price}</span>
+          <span className="font-bold text-pink-600 text-base">₹ {item.price}</span>
         </div>
         <p className="text-xs text-gray-600 mb-2 min-h-[36px] italic">{item.description}</p>
         <div className="flex flex-col gap-1">
@@ -200,9 +201,9 @@ function ItemCard({ item, addToCart, handleBuyNow, currentUser }) {
             onChange={e => setTasteType(e.target.value)}
             className="w-full px-2 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 text-xs mb-1 bg-white"
           >
+            <option value="Mild">Mild</option>
+            <option value="Normal">Normal</option>
             <option value="Spicy">Spicy</option>
-            <option value="Salt">Salt</option>
-            <option value="Mixed">Mixed</option>
           </select>
         </div>
         <div className="flex flex-col gap-1">

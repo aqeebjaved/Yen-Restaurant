@@ -124,76 +124,6 @@ const PaymentManager = () => {
     }
   };
 
-
-  
-// Delete payments older than a specified number of days
- const deleteOldPayments = async (req, res, next) => {
-  const { days } = req.body; // Number of days from the current date
-
-  if (typeof days !== 'number' || days < 0) {
-    return next(errorHandler(400, { message: "Invalid number of days provided" }));
-  }
-
-  try {
-    // Get the current date in SLST timezone
-    const currentDate = new Date();
-    const slstOffset = 5.5 * 60 * 60 * 1000; // Sri Lanka Standard Time is UTC+5:30
-    const slstDate = new Date(currentDate.getTime() + slstOffset);
-
-    // Calculate the cutoff date
-    const cutoffDate = new Date(slstDate.getTime() - days * 24 * 60 * 60 * 1000);
-
-    // Delete payments older than the cutoff date
-    const result = await Payment.deleteMany({ createdAt: { $lt: cutoffDate } });
-
-    res.status(200).json({
-      message: `${result.deletedCount} payment(s) deleted successfully.`,
-      deletedCount: result.deletedCount
-    });
-  } catch (error) {
-    console.error("Error deleting old payments:", error);
-    next(errorHandler(500, { message: "Failed to delete old payments" }));
-  }
-};
-  // // Function to generate PDF
-  // const generatePDF = () => {
-  //   const doc = new jsPDF();
-  //   doc.setFontSize(12);
-    
-  //   // Filter payments to only include those that are checked (complete)
-  //   const completedPayments = payments.filter(payment => payment.isChecked);
-
-  //   if (completedPayments.length === 0) {
-  //     toast.warn("No completed payments to generate PDF.");
-  //     return;
-  //   }
-
-  //   // Title
-  //   doc.text("Completed Payments", 20, 20);
-
-  //   // Generate table
-  //   const tableColumn = [
-  //     "Token Number",
-  //     "User",
-  //     "Total Price",
-  //     "Items"
-  //   ];
-  //   const tableRows = completedPayments.map(payment => {
-  //     return [
-  //       payment.tokenNumber,
-  //       payment.userId ? `${payment.userId.username} (${payment.userId.email})` : "N/A",
-  //       `$${payment.totalPrice?.toFixed(2)}`,
-  //       payment.cartItems?.map(item => `${item.foodName} (${item.quantity} x $${item.price?.toFixed(2)})`).join(", ") || "No items"
-  //     ];
-  //   });
-
-  //   // Create the table in the PDF
-  //   doc.autoTable(tableColumn, tableRows, { startY: 30 });
-
-  //   // Save the PDF
-  //   doc.save("completed_payments.pdf");
-  // };
-
   // Function to generate PDF
   const UncompletePayments = () => {
     const doc = new jsPDF();
@@ -217,8 +147,8 @@ const PaymentManager = () => {
     const tableData = uncompletedPayments.map(payment => ({
       tokenNumber: payment.tokenNumber,
       user: payment.userId ? `${payment.userId.username} (${payment.userId.email})` : "N/A",
-      totalPrice: `$${payment.totalPrice?.toFixed(2)}`,
-      items: payment.cartItems?.map(item => `${item.foodName} - ${item.quantity} x $${item.price?.toFixed(2)}`).join(", ") || "No items"
+      totalPrice: `₹${payment.totalPrice?.toFixed(2)}`,
+      items: payment.cartItems?.map(item => `${item.foodName} - ${item.quantity} x ₹${item.price?.toFixed(2)}`).join(", ") || "No items"
       
     }));
     
@@ -242,7 +172,7 @@ const PaymentManager = () => {
       theme: "grid" // You can choose other themes as well
     });
 
-    doc.text(`Total Price of not Completed Payments: $${totalPrice.toFixed(2)}`,14, 25);
+    doc.text(`Total Price of not Completed Payments: ₹${totalPrice.toFixed(2)}`,14, 25);
    
     // Save the PDF
     doc.save("incomplete_payments.pdf");
@@ -269,7 +199,7 @@ const PaymentManager = () => {
     doc.text("Completed Payments", 20, 20);
   
     // Add Total Price
-    doc.text(`Total Price of Completed Payments: $${totalPrice.toFixed(2)}`, 20, 30);
+    doc.text(`Total Price of Completed Payments: ₹${totalPrice.toFixed(2)}`, 20, 30);
   
     // Generate table
     const tableColumn = [
@@ -282,8 +212,8 @@ const PaymentManager = () => {
       return [
         payment.tokenNumber,
         payment.userId ? `${payment.userId.username} (${payment.userId.email})` : "N/A",
-        `$${payment.totalPrice?.toFixed(2)}`,
-        payment.cartItems?.map(item => `${item.foodName} (${item.quantity} x $${item.price?.toFixed(2)})`).join(", ") || "No items"
+        `₹${payment.totalPrice?.toFixed(2)}`,
+        payment.cartItems?.map(item => `${item.foodName} (${item.quantity} x ₹${item.price?.toFixed(2)})`).join(", ") || "No items"
       ];
     });
   
@@ -357,7 +287,7 @@ const PaymentManager = () => {
                   : "User info not available"}
               </p>
               <p>
-                <strong>Total Price:</strong> $
+                <strong>Total Price:</strong> ₹
                 {filteredPayment.totalPrice?.toFixed(2)}
               </p>
               <p>
@@ -365,9 +295,26 @@ const PaymentManager = () => {
               </p>
               <ul>
                 {filteredPayment.cartItems?.map((item, index) => (
-                  <li key={index}>
-                    {item.foodName} - {item.quantity} x $
-                    {item.price?.toFixed(2)}
+                  <li key={index} className="mb-2">
+                    <div>
+                      {item.foodName} - {item.quantity} x ₹ {item.price?.toFixed(2)}
+                    </div>
+                    {item.tasteType && (
+                      <div className="text-xs text-gray-700 ml-2">Taste: <span className="font-semibold">{item.tasteType}</span></div>
+                    )}
+                    {(item.vegToppings?.length > 0 || item.nonVegToppings?.length > 0) && (
+                      <div className="text-xs text-gray-700 ml-2">
+                        {item.vegToppings?.length > 0 && (
+                          <div>Veg Toppings: <span className="font-semibold">{item.vegToppings.join(", ")}</span></div>
+                        )}
+                        {item.nonVegToppings?.length > 0 && (
+                          <div>Non-Veg Toppings: <span className="font-semibold">{item.nonVegToppings.join(", ")}</span></div>
+                        )}
+                      </div>
+                    )}
+                    {item.userComment && (
+                      <div className="text-xs text-gray-700 ml-2">Comment: <span className="font-semibold">{item.userComment}</span></div>
+                    )}
                   </li>
                 )) || <li>No items available</li>}
               </ul>
@@ -403,14 +350,32 @@ const PaymentManager = () => {
                       : "User info not available"}
                   </td>
                   <td className="p-2 text-center border border-gray-300">
-                    LKR {payment.totalPrice?.toFixed(2)}
+                    ₹ {payment.totalPrice?.toFixed(2)}
                   </td>
                   <td className="p-2 border border-gray-300">
                     <ul>
                       {payment.cartItems?.map((item, index) => (
-                        <li key={index}>
-                          {item.foodName} - {item.quantity} x LKR 
-                          {item.price?.toFixed(2)}
+                        <li key={index} className="mb-2">
+                          <div>
+                            {item.foodName} - {item.quantity} x ₹ 
+                            {item.price?.toFixed(2)}
+                          </div>
+                          {item.tasteType && (
+                            <div className="text-xs text-gray-700 ml-2">Taste: <span className="font-semibold">{item.tasteType}</span></div>
+                          )}
+                          {(item.vegToppings?.length > 0 || item.nonVegToppings?.length > 0) && (
+                            <div className="text-xs text-gray-700 ml-2">
+                              {item.vegToppings?.length > 0 && (
+                                <div>Veg Toppings: <span className="font-semibold">{item.vegToppings.join(", ")}</span></div>
+                              )}
+                              {item.nonVegToppings?.length > 0 && (
+                                <div>Non-Veg Toppings: <span className="font-semibold">{item.nonVegToppings.join(", ")}</span></div>
+                              )}
+                            </div>
+                          )}
+                          {item.userComment && (
+                            <div className="text-xs text-gray-700 ml-2">Comment: <span className="font-semibold">{item.userComment}</span></div>
+                          )}
                         </li>
                       )) || <li>No items available</li>}
                     </ul>
@@ -453,7 +418,7 @@ const PaymentManager = () => {
                   : "User info not available"}
               </p>
               <p>
-                <strong>Total Price:</strong> ${selectedPayment.totalPrice?.toFixed(2)}
+                <strong>Total Price:</strong> ₹{selectedPayment.totalPrice?.toFixed(2)}
               </p>
               <p>
                 <strong>Items:</strong>
@@ -462,7 +427,7 @@ const PaymentManager = () => {
                 {selectedPayment.cartItems?.map((item, index) => (
                   <li key={index} className="mb-2">
                     <div>
-                      {item.foodName} - {item.quantity} x ${item.price?.toFixed(2)}
+                      {item.foodName} - {item.quantity} x ₹{item.price?.toFixed(2)}
                     </div>
                     {item.tasteType && (
                       <div className="text-xs text-gray-700 ml-2">Taste: <span className="font-semibold">{item.tasteType}</span></div>

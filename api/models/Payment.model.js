@@ -8,6 +8,10 @@ const paymentSchema = new mongoose.Schema({
       foodName: String,
       quantity: Number,
       price: Number,
+      tasteType: String, // Spicy, Salt, Mixed, etc.
+      vegToppings: [String],
+      nonVegToppings: [String],
+      userComment: String,
     },
   ],
   totalPrice: Number,

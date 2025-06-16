@@ -20,11 +20,15 @@ export const findFoodById = async (req, res, next) => {
 // Create a new food category
 export const createFoodItem = async (req, res, next) => {
   try {
-    if (req.user.role !== "Manager") {
+    if (req.user.role !== "Manager" && req.user.role !== "Employee") {
       return next(errorHandler(403, 'You are not allowed to create a food category'));
     }
 
     const { foodName, description, category, price, image } = req.body;
+
+    // Accept both camelCase and spaced keys for toppings
+    const vegToppings = req.body["Veg Toppings"] || req.body.vegToppings || [];
+    const nonVegToppings = req.body["Non Veg Toppings"] || req.body.nonVegToppings || [];
 
     if (!foodName || foodName.trim() === '') {
       return next(new Error('Food name is required'));
@@ -35,7 +39,9 @@ export const createFoodItem = async (req, res, next) => {
       description,
       category,
       price,
-      image
+      image,
+      'Veg Toppings': vegToppings,
+      'Non Veg Toppings': nonVegToppings,
     });
 
     const savedItem = await newFoodItem.save();
@@ -46,37 +52,11 @@ export const createFoodItem = async (req, res, next) => {
 };
 
 
-// Get all food items
-// export const getFoodItem = async (req, res, next) => {
-//   try {
-//     const startIndex = parseInt(req.query.startIndex) || 0;
-//     const sortDirection = req.query.order === 'asc' ? 1 : -1;
-//     const item = req.query.item;
-
-//     const query = item ? { item } : {};
-
-//     const foodItems = await FoodItem.find(query)
-//       .sort({ updatedAt: sortDirection })
-//       .skip(startIndex)
-//       .exec();
-
-//     if (!foodItems || foodItems.length === 0) {
-//       return res.status(404).json({ message: 'No food categories found' });
-//     }
-
-//     res.status(200).json({ foodItems });
-//   } catch (error) {
-//     console.error('Error fetching food categories:', error); // Log the error
-//     res.status(500).json({ message: 'Internal server error', error });
-//   }
-// };
-
 // Delete a food category by ID
 export const deleteFoodItem = async (req, res, next) => {
   try {
     // if (!req.user.isAdmin) {
-      if (req.user.role !== "Manager") {
-
+      if (req.user.role !== "Manager" && req.user.role !== "Employee") {
       return next(errorHandler(403, 'You are not allowed to delete this food category'));
     }
 
@@ -91,12 +71,15 @@ export const deleteFoodItem = async (req, res, next) => {
 export const updateFoodItem = async (req, res, next) => {
   try {
     // if (!req.user.isAdmin) {
-      if (req.user.role !== "Manager") {
+      if (req.user.role !== "Manager" && req.user.role !== "Employee") {
 
       return next(errorHandler(403, 'You are not allowed to update this food category'));
     }
 
     const { foodName, description, category, price, image } = req.body;
+
+    const vegToppingsUpdate = req.body["Veg Toppings"] || req.body.vegToppings || [];
+    const nonVegToppingsUpdate = req.body["Non Veg Toppings"] || req.body.nonVegToppings || [];
 
     const updatedItem = await FoodItem.findByIdAndUpdate(
       req.params.itemId,
@@ -107,6 +90,8 @@ export const updateFoodItem = async (req, res, next) => {
           category,
           price,
           image,
+          'Veg Toppings': vegToppingsUpdate,
+          'Non Veg Toppings': nonVegToppingsUpdate,
         },
       },
       { new: true }

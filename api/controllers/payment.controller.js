@@ -8,7 +8,7 @@ export const savePayment = async (req, res, next) => {
   try {
     const payment = new Payment({
       userId,
-      cartItems,
+      cartItems, // cartItems should include tasteType, vegToppings, nonVegToppings, userComment for each item
       totalPrice,
       paymentInfo: {
         ...paymentInfo, // Include cardType from paymentInfo

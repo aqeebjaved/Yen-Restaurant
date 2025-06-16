@@ -27,6 +27,15 @@ const foodCategorySchema = new mongoose.Schema(
             type: String, // Assuming you store the image URL
             default: 'https://i.pinimg.com/originals/2b/f0/e0/2bf0e06f26135c159a64591c817f639e.jpg',
         },
+
+        'Veg Toppings': {
+            type: [String],
+            default: [],
+        },
+        'Non Veg Toppings': {
+            type: [String],
+            default: [],
+        },
     }
 );
 

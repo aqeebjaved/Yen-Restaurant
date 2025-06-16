@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Toastify from "toastify-js";
@@ -43,7 +43,15 @@ const PayNow = () => {
 
     const paymentDetails = {
       userId,
-      cartItems,
+      cartItems: cartItems.map(item => ({
+        foodName: item.foodName,
+        quantity: item.quantity,
+        price: item.price,
+        tasteType: item.tasteType || '',
+        vegToppings: item.vegToppings || [],
+        nonVegToppings: item.nonVegToppings || [],
+        userComment: item.userComment || '',
+      })),
       totalPrice,
       paymentInfo: {
         cardType: e.target.cardType.value,
@@ -102,7 +110,7 @@ const PayNow = () => {
     <div className="flex items-center justify-center min-h-screen px-5 pt-16 pb-10 bg-gray-200 min-w-screen">
       <div className="w-full p-5 mx-auto text-gray-700 bg-white rounded-lg shadow-lg" style={{ maxWidth: "600px" }}>
         <h1 className="text-xl font-bold text-center uppercase">Secure payment info</h1>
-        <p className="my-3 text-lg font-semibold text-center">Total Price: LKR {totalPrice.toFixed(2)}</p>
+        <p className="my-3 text-lg font-semibold text-center">Total Price: ₹ {totalPrice.toFixed(2)}</p>
         <form onSubmit={handlePayment}>
           <div className="mb-3">
             <label className="mb-2 text-sm font-bold">Card Type</label>
